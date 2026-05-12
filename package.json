@@ -4,7 +4,7 @@
   "description": "AI-powered git commit messages — works with Claude Code or API key",
   "type": "module",
   "bin": {
-    "commitwizard": "./bin/ai-commit.js"
+    "commitwizard": "bin/ai-commit.js"
   },
   "scripts": {
     "start": "node bin/ai-commit.js"
