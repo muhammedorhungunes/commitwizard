@@ -49,8 +49,7 @@ export async function generateSuggestions(diff, opts = {}) {
   const extraSection = extras.length ? `\nConstraints:\n${extras.join('\n')}` : '';
   const template     = Array.from({ length: count }, (_, i) => `${i + 1}. <message>`).join('\n');
 
-  const prompt =
-    `${SYSTEM_PROMPT}\n\n` +
+  const userPrompt =
     `Generate exactly ${count} commit message suggestion${count > 1 ? 's' : ''} for this staged diff.` +
     extraSection + historySection +
     `\n\nRespond with ONLY a numbered list — no intro, no explanation:\n${template}` +
@@ -58,8 +57,8 @@ export async function generateSuggestions(diff, opts = {}) {
 
   const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
   const raw = hasApiKey
-    ? await generateWithSDK(prompt, MODEL_ALIASES[model] || model)
-    : generateWithCLI(prompt);
+    ? await generateWithSDK(userPrompt, MODEL_ALIASES[model] || model)
+    : generateWithCLI(`${SYSTEM_PROMPT}\n\n${userPrompt}`);
 
   return parseSuggestions(raw, count);
 }

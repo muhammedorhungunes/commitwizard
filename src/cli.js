@@ -1,3 +1,4 @@
+import { createRequire } from 'module';
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { loadConfig, saveConfig, getConfigPath, DEFAULTS } from './config.js';
@@ -7,6 +8,8 @@ import {
 } from './git.js';
 import { generateSuggestions } from './ai.js';
 import { selectAction, editMessage, confirmCommit } from './prompt.js';
+
+const { version } = createRequire(import.meta.url)('../package.json');
 import {
   printHeader, printStats, printSuggestions, printSuccess,
   printDryRun, printCopied, printError, printWarning, createSpinner,
@@ -127,7 +130,7 @@ const program = new Command();
 program
   .name('commitwizard')
   .description('AI-powered git commit messages — works with Claude Code or API key')
-  .version('1.0.0')
+  .version(version)
   .option('-y, --yes',          'auto-commit with the top suggestion')
   .option('-e, --emoji',        'include gitmoji in commit messages')
   .option('-l, --lang <lang>',  'language for the description (e.g. tr, de, fr)')
