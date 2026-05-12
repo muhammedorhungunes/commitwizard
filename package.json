@@ -1,6 +1,6 @@
 {
   "name": "@gunesmuhammedorhun/commitwizard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AI-powered git commit messages — works with Claude Code or API key",
   "type": "module",
   "bin": {
