@@ -35,6 +35,23 @@ export function getDiffStats() {
   return stats;
 }
 
+export function getCurrentBranch() {
+  const r = git('rev-parse', '--abbrev-ref', 'HEAD');
+  return r.status === 0 ? r.stdout.trim() : null;
+}
+
+export function detectTicketFromBranch() {
+  const branch = getCurrentBranch();
+  if (!branch) return null;
+  // Jira / Linear style: PROJ-123, ABC-456
+  const jira = branch.match(/([A-Z][A-Z0-9]+-\d+)/);
+  if (jira) return jira[1];
+  // GitHub issue numbers: issue/123, feature/45-name, bugfix-789
+  const gh = branch.match(/(?:^|[-/])(\d{1,6})(?:[-/]|$)/);
+  if (gh) return `#${gh[1]}`;
+  return null;
+}
+
 export function getRecentCommits(n = 5) {
   const r = git('log', `--max-count=${n}`, '--pretty=format:%s');
   if (r.status !== 0) return [];

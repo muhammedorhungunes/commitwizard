@@ -4,10 +4,10 @@ import chalk from 'chalk';
 import { loadConfig, saveConfig, getConfigPath, DEFAULTS } from './config.js';
 import {
   isGitRepo, hasStagedChanges, getStagedDiff, getDiffStats,
-  getRecentCommits, commitWithMessage, copyToClipboard,
+  getRecentCommits, commitWithMessage, copyToClipboard, detectTicketFromBranch,
 } from './git.js';
 import { generateSuggestions } from './ai.js';
-import { selectAction, editMessage, confirmCommit } from './prompt.js';
+import { selectAction, editMessage, confirmCommit, selectCommitType, askTicketNumber } from './prompt.js';
 
 const { version } = createRequire(import.meta.url)('../package.json');
 import {
@@ -61,15 +61,27 @@ async function run(cliOpts) {
   const count    = Math.max(1, Math.min(10, parseInt(merged.count) || DEFAULTS.count));
   const emoji    = merged.emoji    ?? DEFAULTS.emoji;
   const lang     = merged.lang     ?? DEFAULTS.lang;
-  const type     = merged.type     ?? null;
   const autoYes  = merged.yes      ?? false;
   const dryRun   = merged.dryRun   ?? false;
   const copy     = merged.copy     ?? false;
   const useHist  = merged.history  !== false;
 
+  // Commit type: --type flag → interactive select → null (AI decides)
+  let resolvedType = merged.type ?? null;
+  if (!autoYes && resolvedType === null) {
+    resolvedType = await selectCommitType();
+  }
+
+  // Ticket: --ticket flag → branch auto-detect → interactive ask
+  const detectedTicket = detectTicketFromBranch();
+  let resolvedTicket = merged.ticket ?? null;
+  if (resolvedTicket === null) {
+    resolvedTicket = autoYes ? detectedTicket : await askTicketNumber(detectedTicket);
+  }
+
   const diff    = getStagedDiff();
   const history = useHist ? getRecentCommits(5) : [];
-  const genOpts = { model, count, emoji, lang, type, history };
+  const genOpts = { model, count, emoji, lang, type: resolvedType, ticket: resolvedTicket, history };
 
   // Auto-commit mode: generate once, pick first, commit
   if (autoYes) {
@@ -136,7 +148,8 @@ program
   .option('-l, --lang <lang>',  'language for the description (e.g. tr, de, fr)')
   .option('-m, --model <name>', 'model: haiku (default), sonnet, opus')
   .option('-n, --count <n>',    'number of suggestions to generate (default: 3)')
-  .option('-t, --type <type>',  'force a commit type (feat, fix, docs, refactor…)')
+  .option('-t, --type <type>',   'force a commit type (feat, fix, docs, refactor…)')
+  .option('--ticket <id>',      'ticket / issue reference to append (e.g. PROJ-123, #45)')
   .option('--dry-run',          'show suggestions without committing')
   .option('--copy',             'copy selected message to clipboard')
   .option('--no-history',       'skip recent commit history context')

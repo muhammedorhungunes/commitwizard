@@ -33,12 +33,14 @@ export async function generateSuggestions(diff, opts = {}) {
     emoji   = false,
     lang    = 'en',
     type    = null,
+    ticket  = null,
     model   = 'claude-haiku-4-5',
     history = [],
   } = opts;
 
   const extras = [];
   if (type)          extras.push(`- You MUST use commit type: ${type}`);
+  if (ticket)        extras.push(`- Append the ticket reference at the end of the first line in square brackets: [${ticket}]`);
   if (emoji)         extras.push('- Prefix the description with a relevant gitmoji');
   if (lang !== 'en') extras.push(`- Write the description in ${lang} language`);
 
