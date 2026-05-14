@@ -9,11 +9,20 @@ Stage your changes, run `commitwizard`, and pick from smart suggestions followin
 
   3 files  ·  +87  ·  -12
 
+? Commit type:
+❯ ✦ auto       AI decides based on the diff
+  feat         — new feature
+  fix          — bug fix
+  refactor     — no behavior change
+  …
+
+? Ticket / issue (optional — Enter to skip): PROJ-123
+
   ╌╌╌ Suggestions ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
   
-  1. feat(auth): add JWT refresh token rotation
-  2. feat(auth): implement silent token renewal on expiry
-  3. refactor(auth): extract token lifecycle into dedicated service
+  1. feat(auth): add JWT refresh token rotation [PROJ-123]
+  2. feat(auth): implement silent token renewal on expiry [PROJ-123]
+  3. refactor(auth): extract token lifecycle into dedicated service [PROJ-123]
 
 ? Select a commit message: › …
 ```
@@ -21,6 +30,8 @@ Stage your changes, run `commitwizard`, and pick from smart suggestions followin
 ## Features
 
 - **Zero config** — works out of the box if you have [Claude Code](https://claude.ai/code) installed
+- **Commit type selector** — interactive menu to pick `feat`, `fix`, `refactor`… or let AI decide
+- **Ticket / issue linking** — auto-detects Jira/Linear/GitHub issue numbers from your branch name, appends `[PROJ-123]` to the message
 - **Multiple suggestions** — pick the best one, or regenerate
 - **Conventional Commits** — `feat`, `fix`, `docs`, `refactor`, `chore`, and more
 - **Breaking change detection** — automatically uses `feat!:` notation
@@ -63,7 +74,8 @@ commitwizard
 | `-l, --lang <lang>` | Language: `tr`, `de`, `fr`, `es`… |
 | `-m, --model <name>` | `haiku` (default), `sonnet`, `opus` |
 | `-n, --count <n>` | Number of suggestions (default: 3) |
-| `-t, --type <type>` | Force a type: `feat`, `fix`, `docs`… |
+| `-t, --type <type>` | Force a type: `feat`, `fix`, `docs`… (skips interactive selector) |
+| `--ticket <id>` | Ticket / issue reference to append: `PROJ-123`, `#45` |
 | `--dry-run` | Generate without committing |
 | `--copy` | Copy selected message to clipboard |
 | `--no-history` | Skip recent commit history context |
@@ -83,8 +95,14 @@ commitwizard --model sonnet
 # Commit message in Turkish with emojis
 commitwizard --lang tr --emoji
 
-# Force fix type
+# Force fix type (skips type selector)
 commitwizard --type fix
+
+# Attach a Jira ticket manually
+commitwizard --ticket PROJ-123
+
+# Branch named feature/PROJ-456-login → ticket auto-detected
+commitwizard
 
 # Preview only
 commitwizard --dry-run
